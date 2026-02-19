@@ -1,0 +1,32 @@
+/* ── Global Reset ───────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  /* Prevent iOS bounce scroll when used as installed PWA */
+  overscroll-behavior: none;
+  background: #0d1117;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+/* dvh (dynamic viewport height) accounts for the Safari toolbar collapsing/expanding.
+   This ensures the layout fills the screen correctly both in the browser and as a PWA. */
+.app-root {
+  width: 100dvw;
+  height: 100dvh;
+  overflow: hidden;
+}

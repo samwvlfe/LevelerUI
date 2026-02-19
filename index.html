@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- iOS PWA: enables fullscreen mode when launched from home screen -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <!-- black-translucent: status bar overlays content (works with our fullscreen layout) -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="LevelerUI" />
+
+    <!-- iOS home screen icon — iOS ignores the manifest icons array for this; must be explicit -->
+    <!-- SWAP: replace with production icon before client delivery -->
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+
+    <!-- Viewport: user-scalable=no is intentional for kiosk/trade show use -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+
+    <!-- Splash screen / address bar color -->
+    <meta name="theme-color" content="#0d1117" />
+
+    <!-- vite-plugin-pwa automatically injects <link rel="manifest"> here at build time -->
+
+    <title>LevelerUI</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
