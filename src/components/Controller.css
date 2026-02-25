@@ -1,188 +1,115 @@
-/* ── Layout ─────────────────────────────────────────────────── */
-
-.controller {
-  display: grid;
-  grid-template-rows: 52px 1fr 112px;
-  grid-template-areas:
-    "status"
-    "display"
-    "buttons";
-  width: 100dvw;
-  height: 100dvh;
-  background: #0d1117;
+/* ── App container: hard cap at iPad Pro landscape (1366×1024) ── */
+.app {
+  width: 100vw;
+  height: 100vh;
+  max-width: 1366px;
+  max-height: 1024px;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-  /* Prevent iOS rubber-band scroll in fullscreen PWA */
-  overscroll-behavior: none;
-  touch-action: none;
+  background-color: black;
 }
 
-/* ── Status Bar ─────────────────────────────────────────────── */
+/* ── Video area: fills all remaining space above the footer ── */
+.video-wrap {
+  flex: 1;
+  position: relative;
+  background-color: black;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-.status-bar {
-  grid-area: status;
+.video-wrap > video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Anchored inside .video-wrap — always stays in the top-right corner */
+.step-name {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 40px;
+  color: white;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ── Footer: fixed height, three equal-spaced columns ── */
+.footer {
+  height: 120px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
-  background: #0d1117;
-  border-bottom: 1px solid #21262d;
-  /* Lift above display area so no content bleeds through */
-  z-index: 10;
+  background-color: black;
+  color: white;
+  padding: 0 20px;
+  gap: 16px;
 }
 
-.status-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 200px;
-}
-
-.status-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
+/* ── Left column: logo ── */
+.ds-menu-logo {
+  height: 70px;
+  width: auto;
+  object-fit: contain;
   flex-shrink: 0;
-  transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.status-dot--idle {
-  background-color: #4ade80;
-  box-shadow: 0 0 6px #4ade80;
-  /* Slow pulse to indicate standby */
-  animation: idlePulse 2.5s ease-in-out infinite;
-}
-
-.status-dot--active {
-  /* Color and box-shadow set inline */
-  animation: activePulse 0.8s ease-in-out infinite;
-}
-
-@keyframes idlePulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-@keyframes activePulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.3); }
-}
-
-.status-state {
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: #e6edf3;
-  text-transform: uppercase;
-  transition: color 0.2s ease;
-  min-width: 120px;
-}
-
-.status-brand {
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 0.75rem;
-  font-weight: 400;
-  letter-spacing: 0.2em;
-  color: #4d5666;
-  text-transform: uppercase;
-  text-align: center;
-}
-
-.status-right {
+/* ── Center column: control buttons ── */
+.control-cont {
   display: flex;
   align-items: center;
-  min-width: 200px;
-  justify-content: flex-end;
+  gap: 20px;
 }
 
-.status-mode {
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.15em;
-  color: #4d5666;
-  text-transform: uppercase;
-  border: 1px solid #30363d;
-  padding: 2px 8px;
-  border-radius: 3px;
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  border: 2px solid white;
+  padding: 10px 20px;
+  cursor: pointer;
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* ── Button Panel ───────────────────────────────────────────── */
-
-.button-panel {
-  grid-area: buttons;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-  padding: 6px;
-  background: #0d1117;
-  border-top: 2px solid #21262d;
+.button:active {
+  border-color: #21a42c;
+  color: #21a42c;
 }
 
-.control-btn {
+/* ── Right column: date & time ── */
+.footer-data {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
   gap: 4px;
-  height: 100%;
-  background: #161b22;
-  border: 2px solid #30363d;
-  border-radius: 8px;
-  color: #7d8590;
-  cursor: pointer;
-
-  /* Remove iOS tap flash and text selection */
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  -webkit-user-select: none;
-
-  /* Transitions */
-  transition:
-    background-color 0.08s ease,
-    border-color 0.08s ease,
-    color 0.08s ease,
-    transform 0.05s ease;
+  flex-shrink: 0;
+  min-width: 160px;
 }
 
-.control-btn:active,
-.control-btn--active {
-  background: #1c2128;
-  transform: scale(0.97);
+.footer-time {
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0.03em;
 }
 
-.control-btn-label {
-  font-family: 'Courier New', Courier, monospace;
-  font-size: clamp(0.9rem, 2.2vw, 1.2rem);
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-}
-
-.control-btn-hint {
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  opacity: 0.4;
-}
-
-/* Hide the HOLD hint when button is active — it's obvious it's held */
-.control-btn--active .control-btn-hint {
-  opacity: 0;
-}
-
-/* Hairline separator between buttons — industrial panel aesthetic */
-.control-btn::before {
-  content: '';
-  position: absolute;
-  top: 8px;
-  bottom: 8px;
-  left: 0;
-  width: 1px;
-  background: #21262d;
-  pointer-events: none;
-}
-
-.control-btn:first-child::before {
-  display: none;
+.footer-date {
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.1;
+  opacity: 0.85;
 }

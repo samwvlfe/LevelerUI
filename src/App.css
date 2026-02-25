@@ -8,25 +8,33 @@
   padding: 0;
 }
 
+/* ── Page shell: center the app on any screen larger than iPad ── */
 html,
 body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  /* Prevent iOS bounce scroll when used as installed PWA */
   overscroll-behavior: none;
-  background: #0d1117;
+  background-color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
 }
 
 #root {
   width: 100%;
   height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* dvh (dynamic viewport height) accounts for the Safari toolbar collapsing/expanding.
-   This ensures the layout fills the screen correctly both in the browser and as a PWA. */
 .app-root {
-  width: 100dvw;
-  height: 100dvh;
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

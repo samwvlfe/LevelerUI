@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Controller Frontend</title>
+</head>
+<style>
+    /* ── Page shell: center the app on any screen larger than iPad ── */
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: #111; /* letterbox color for screens wider than iPad */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+    }
+
+    /* ── App container: hard cap at iPad Pro landscape (1366×1024) ── */
+    .app {
+        width: 100vw;
+        height: 100vh;
+
+        /* Never exceed iPad Pro landscape dimensions */
+        max-width: 1366px;
+        max-height: 1024px;
+
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background-color: black;
+    }
+
+    /* ── Video area: fills all remaining space above the footer ── */
+    .video-wrap {
+        flex: 1;              /* takes all vertical space not used by footer */
+        position: relative;   /* establishes positioning context for .step-name */
+        background-color: black;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .video-wrap > video {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+    }
+
+    /* Anchored inside .video-wrap — always stays in the top-right corner of the video area */
+    .step-name {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 40px;
+        color: white;
+        z-index: 1;           /* sits above the video element */
+        pointer-events: none; /* never blocks video touch/click interaction */
+    }
+
+    /* ── Footer: fixed height, three equal-spaced columns ── */
+    .footer {
+        height: 120px;         /* fixed footer height — not flex: 1 */
+        flex-shrink: 0;        /* never compress when video needs more room */
+        display: flex;
+        align-items: center;   /* vertically center ALL three columns */
+        justify-content: space-between;
+        background-color: black;
+        color: white;
+        padding: 0 20px;
+        gap: 16px;
+    }
+
+    /* ── Left column: logo ── */
+    .ds-menu-logo {
+        height: 70px;          /* fixed height relative to footer, not viewport */
+        width: auto;
+        object-fit: contain;
+        flex-shrink: 0;
+    }
+
+    /* ── Center column: control buttons ── */
+    .control-cont {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 5px;
+        border: 2px solid white;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+    .button:active{
+        border-color: #21a42c;
+        color: #21a42c;
+    }
+
+    /* Both button images are exactly the same size — no inline overrides */
+    .button img {
+        width: 90px;           /* fixed pixel size: consistent on all screens */
+        height: 90px;
+        object-fit: contain;
+    }
+
+    /* ── Right column: date & time ── */
+    .footer-data {
+        display: flex;
+        flex-direction: column;
+        align-items: center;   /* center text horizontally within the column */
+        justify-content: center;
+        text-align: center;
+        gap: 4px;
+        flex-shrink: 0;
+        min-width: 160px;      /* ensures the column doesn't collapse */
+    }
+
+    .footer-time {
+        font-size: 28px;
+        font-weight: 600;
+        line-height: 1.1;
+        letter-spacing: 0.03em;
+    }
+
+    .footer-date {
+        font-size: 20px;
+        font-weight: 400;
+        line-height: 1.1;
+        opacity: 0.85;
+    }
+</style>
+<body>
+    <div class="app">
+
+        <div class="video-wrap">
+            <video src="src/assets/videos/1_truck-back-in.mp4" autoplay muted playsinline loop></video>
+            <div class="step-name">Home</div>
+        </div>
+
+        <div class="footer">
+            <!-- Left: logo -->
+            <img src="logo.png" alt="dockstar logo" class="ds-menu-logo">
+
+            <!-- Center: control buttons — no inline style overrides, both use .button img -->
+            <div class="control-cont">
+                <div class="button">
+                    BACK
+                </div>
+                <div class="button">
+                    ACTION
+                </div>
+                <div class="button">
+                    NEXT
+                </div>
+            </div>
+
+            <!-- Right: date & time, larger and centered -->
+            <div class="footer-data">
+                <div class="footer-time">12:12:12 PM</div>
+                <div class="footer-date">2/24/2026</div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

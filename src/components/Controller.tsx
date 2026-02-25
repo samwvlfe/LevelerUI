@@ -1,107 +1,73 @@
-import { useLevelerState } from '../hooks/useLevelerState'
-import { StateDisplay } from './StateDisplay'
-import { STATE_ASSETS } from '../constants/stateAssets'
-import type { ControlButton } from '../types'
+import { useState, useEffect } from 'react'
 import './Controller.css'
 
-// Button definitions — separated from render logic for easy modification
-// To add/remove/rename buttons, edit this array only
-const BUTTONS: ControlButton[] = [
-  {
-    id: 'extend',
-    label: 'EXTEND',
-    activatesState: 'EXTENDING',
-    ariaLabel: 'Hold to extend leveler lip into trailer',
-  },
-  {
-    id: 'retract',
-    label: 'RETRACT',
-    activatesState: 'RETRACTING',
-    ariaLabel: 'Hold to retract leveler lip',
-  },
-  {
-    id: 'raise',
-    label: 'RAISE',
-    activatesState: 'RAISING',
-    ariaLabel: 'Hold to raise platform',
-  },
-  {
-    id: 'lower',
-    label: 'LOWER',
-    activatesState: 'LOWERING',
-    ariaLabel: 'Hold to lower platform',
-  },
+import video1 from '../assets/videos/1_truck-back-in.mp4'
+import video2 from '../assets/videos/2_restraint-engage.mp4'
+import video3 from '../assets/videos/3_door-open.mp4'
+import logo from '../../logo.png'
+
+const VIDEOS = [
+  { src: video1, label: 'Home' },
+  { src: video2, label: 'Raise Restraint' },
+  { src: video3, label: 'Raise Door' },
 ]
 
+function useClock() {
+  const [now, setNow] = useState(new Date())
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(id)
+  }, [])
+  return now
+}
+
 export function Controller() {
-  const { state, activateState, deactivateState } = useLevelerState()
-  const asset = STATE_ASSETS[state]
+  const [index, setIndex] = useState(0)
+  const now = useClock()
+
+  const goNext = () => setIndex((i) => (i + 1) % VIDEOS.length)
+  const goBack = () => setIndex((i) => (i - 1 + VIDEOS.length) % VIDEOS.length)
+
+  const timeStr = now.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  })
+  const dateStr = now.toLocaleDateString('en-US', {
+    month: 'numeric',
+    day: 'numeric',
+    year: 'numeric',
+  })
 
   return (
-    <div className="controller">
+    <div className="app">
 
-      {/* ── Status Bar ─────────────────────────────────────────── */}
-      <div className="status-bar">
-        <div className="status-left">
-          {/* Indicator dot — pulses green when idle, accent color when active */}
-          <div
-            className={`status-dot ${state !== 'IDLE' ? 'status-dot--active' : 'status-dot--idle'}`}
-            style={state !== 'IDLE' ? { backgroundColor: asset.accentColor, boxShadow: `0 0 8px ${asset.accentColor}` } : undefined}
-          />
-          <span
-            className="status-state"
-            style={state !== 'IDLE' ? { color: asset.accentColor } : undefined}
-          >
-            {asset.label}
-          </span>
-        </div>
-
-        <span className="status-brand">DOCK LEVELER CONTROL SYSTEM</span>
-
-        <div className="status-right">
-          <span className="status-mode">DEMO MODE</span>
-        </div>
+      <div className="video-wrap">
+        <video
+          key={VIDEOS[index].src}
+          src={VIDEOS[index].src}
+          autoPlay
+          muted
+          playsInline
+          loop
+        />
+        <div className="step-name">{VIDEOS[index].label}</div>
       </div>
 
-      {/* ── Display Area ───────────────────────────────────────── */}
-      <StateDisplay state={state} asset={asset} />
+      <div className="footer">
+        <img src={logo} alt="dockstar logo" className="ds-menu-logo" />
 
-      {/* ── Button Panel ───────────────────────────────────────── */}
-      <div className="button-panel" role="group" aria-label="Leveler controls">
-        {BUTTONS.map((btn) => {
-          const isActive = state === btn.activatesState
-          const btnAsset = STATE_ASSETS[btn.activatesState]
+        <div className="control-cont">
+          <div className="button" onClick={goBack}>BACK</div>
+          <div className="button">ACTION</div>
+          <div className="button" onClick={goNext}>NEXT</div>
+        </div>
 
-          return (
-            <button
-              key={btn.id}
-              className={`control-btn ${isActive ? 'control-btn--active' : ''}`}
-              aria-label={btn.ariaLabel}
-              aria-pressed={isActive}
-              style={
-                isActive
-                  ? {
-                      borderColor: btnAsset.accentColor,
-                      color: btnAsset.accentColor,
-                      boxShadow: `0 0 16px ${btnAsset.accentColor}33, inset 0 0 12px rgba(255,255,255,0.05)`,
-                    }
-                  : undefined
-              }
-              // Pointer events handle both touch and mouse, covering all iOS edge cases:
-              // pointerDown: button pressed
-              // pointerUp: finger lifted normally
-              // pointerLeave: finger slides off button without lifting
-              // pointerCancel: iOS interrupts interaction (e.g. notification arrives)
-              onPointerDown={() => activateState(btn.activatesState)}
-              onPointerUp={deactivateState}
-              onPointerLeave={deactivateState}
-              onPointerCancel={deactivateState}
-            >
-              <span className="control-btn-label">{btn.label}</span>
-              <span className="control-btn-hint">HOLD</span>
-            </button>
-          )
-        })}
+        <div className="footer-data">
+          <div className="footer-time">{timeStr}</div>
+          <div className="footer-date">{dateStr}</div>
+        </div>
       </div>
 
     </div>
