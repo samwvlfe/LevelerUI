@@ -1,0 +1,91 @@
+/* ── Split choice: fills the entire video-wrap area ── */
+.split-choice {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+/* ── Each half: full height, fills 50% of width, tappable ── */
+.split-side {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Darken slightly on press */
+.split-side:active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+
+/* ── Background image: covers the entire half ── */
+.split-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── Dark gradient scrim so text is always readable ── */
+.split-side::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.70) 0%,
+    rgba(0, 0, 0, 0.15) 50%,
+    rgba(0, 0, 0, 0.30) 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ── Choice label: large centered text over the image ── */
+.split-label {
+  position: relative;
+  z-index: 2;
+  color: white;
+  font-size: clamp(28px, 4vw, 56px);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-align: center;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+
+/* ── Tap hint: smaller text below the label ── */
+.split-tap-hint {
+  position: relative;
+  z-index: 2;
+  margin-top: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: clamp(12px, 1.4vw, 18px);
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* ── Thin divider line between the two halves ── */
+.split-divider {
+  width: 2px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+  z-index: 2;
+}
