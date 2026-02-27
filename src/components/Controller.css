@@ -67,25 +67,20 @@
   gap: 20px;
 }
 
-.button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 5px;
+.btn-cont{
   border: 2px solid white;
-  padding: 10px 20px;
-  cursor: pointer;
-  color: white;
-  font-size: 18px;
-  font-weight: 600;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-tap-highlight-color: transparent;
+  border-radius: 10px;
+  padding: 5px;
+}
+.btn-cont:active {
+  border-color: #21a42c;
 }
 
-.button:active {
-  border-color: #21a42c;
-  color: #21a42c;
+.button{
+  width: 70px;
+  height: 70px;
+  -webkit-user-drag: none;
+  pointer-events: none;
 }
 
 /* ── Right column: date & time ── */

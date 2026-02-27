@@ -7,7 +7,7 @@ import { SplitChoice } from './SplitChoice'
 import { Screensaver } from './Screensaver'
 import { useIdleTimer } from '../hooks/useIdleTimer'
 
-const IDLE_TIMEOUT_MS = 30_000 // 30 seconds — change this to adjust
+const IDLE_TIMEOUT_MS = 120_000 // 30 seconds — change this to adjust
 
 function useClock() {
   const [now, setNow] = useState(new Date())
@@ -97,12 +97,8 @@ export function Controller() {
 
         <div className="control-cont">
           {step.buttons.map((btn, i) => (
-            <div
-              key={i}
-              className="button"
-              onClick={() => handleAction(btn.action)}
-            >
-              {btn.label}
+            <div key={i} className="btn-cont" onClick={() => handleAction(btn.action)}>
+              <img src={btn.image} className="button" alt="button logo" />
             </div>
           ))}
         </div>
