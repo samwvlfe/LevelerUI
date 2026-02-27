@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './Controller.css'
 import logo from '../assets/images/logo.png'
 import { STEPS, STEP_MAP } from '../sequence'
@@ -22,12 +22,50 @@ export function Controller() {
   const [showScreensaver, setShowScreensaver] = useState(true)
   const [stepId, setStepId] = useState(STEPS[0].id)
   const [history, setHistory] = useState<string[]>([])
+  const [holdState, setHoldState] = useState<{ key: string; progress: number } | null>(null)
+  const [flashKey, setFlashKey] = useState<string | null>(null)
+  const holdIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const now = useClock()
 
   const step = STEP_MAP[stepId]
 
   // Show screensaver after idle timeout, from any screen
   useIdleTimer(IDLE_TIMEOUT_MS, () => setShowScreensaver(true))
+
+  // Cancel hold and clear flash state whenever the step changes
+  useEffect(() => {
+    if (holdIntervalRef.current) {
+      clearInterval(holdIntervalRef.current)
+      holdIntervalRef.current = null
+    }
+    setHoldState(null)
+    setFlashKey(null)
+  }, [stepId])
+
+  function cancelHold() {
+    if (holdIntervalRef.current) {
+      clearInterval(holdIntervalRef.current)
+      holdIntervalRef.current = null
+    }
+    setHoldState(null)
+  }
+
+  function startHold(key: string, duration: number, onComplete: () => void) {
+    cancelHold()
+    const startTime = Date.now()
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime
+      const progress = Math.min(100, (elapsed / duration) * 100)
+      setHoldState({ key, progress })
+      if (progress >= 100) {
+        clearInterval(interval)
+        holdIntervalRef.current = null
+        setHoldState(null)
+        onComplete()
+      }
+    }, 16) // ~60fps updates
+    holdIntervalRef.current = interval
+  }
 
   function dismissScreensaver() {
     // Reset to home whenever screensaver is dismissed
@@ -96,11 +134,56 @@ export function Controller() {
         <img src={logo} alt="dockstar logo" className="ds-menu-logo" />
 
         <div className="control-cont">
+<<<<<<< HEAD
           {step.buttons.map((btn, i) => (
             <div key={i} className="btn-cont" onClick={() => handleAction(btn.action)}>
               <img src={btn.image} className="button" alt="button logo" />
             </div>
           ))}
+=======
+          {step.buttons.map((btn, i) => {
+            const btnKey = `${stepId}-${i}`
+            const isHold = btn.action.type === 'hold'
+            const isHolding = holdState?.key === btnKey
+            const isFlashing = flashKey === btnKey
+            const progress = isHolding ? holdState!.progress : 0
+
+            if (isHold) {
+              const duration = btn.action.type === 'hold' ? (btn.action.duration ?? 2000) : 2000
+              return (
+                <div
+                  key={i}
+                  className={isHolding ? 'button button-holding' : 'button'}
+                  style={isHolding ? ({ '--hold-progress': progress } as React.CSSProperties) : undefined}
+                  onPointerDown={(e) => {
+                    e.currentTarget.setPointerCapture(e.pointerId)
+                    startHold(btnKey, duration, () => {
+                      setFlashKey(`${stepId}-${i + 1}`)
+                    })
+                  }}
+                  onPointerUp={cancelHold}
+                  onPointerLeave={cancelHold}
+                  onPointerCancel={cancelHold}
+                >
+                  {btn.label}
+                </div>
+              )
+            }
+
+            return (
+              <div
+                key={i}
+                className={['button', isFlashing ? 'button-flash' : ''].filter(Boolean).join(' ')}
+                onClick={() => {
+                  if (isFlashing) setFlashKey(null)
+                  handleAction(btn.action)
+                }}
+              >
+                {btn.label}
+              </div>
+            )
+          })}
+>>>>>>> 23073bcae50d9df8c4fc3faf66061de8c6721d45
         </div>
 
         <div className="footer-data">

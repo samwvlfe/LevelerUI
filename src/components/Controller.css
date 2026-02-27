@@ -83,6 +83,39 @@
   pointer-events: none;
 }
 
+/* Hold button: clockwise green border progress via conic-gradient */
+.button-holding {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(#000, #000) padding-box,
+    conic-gradient(
+      from 0deg,
+      #21a42c calc(var(--hold-progress, 0) * 1%),
+      white calc(var(--hold-progress, 0) * 1%)
+    ) border-box;
+  color: #21a42c;
+}
+
+/* Next button flashes green once hold is complete */
+@keyframes flashBorder {
+  0%, 100% {
+    border-color: #21a42c;
+    color: #21a42c;
+    box-shadow: 0 0 12px rgba(33, 164, 44, 0.5);
+  }
+  50% {
+    border-color: rgba(33, 164, 44, 0.15);
+    color: white;
+    box-shadow: none;
+  }
+}
+
+.button-flash {
+  animation: flashBorder 0.6s ease-in-out infinite;
+  border-color: #21a42c;
+  color: #21a42c;
+}
+
 /* ── Right column: date & time ── */
 .footer-data {
   display: flex;
