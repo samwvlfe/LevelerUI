@@ -59,6 +59,7 @@ export type ButtonAction =
   | { type: 'goto'; stepId: string }
   | { type: 'back' }
   | { type: 'none' }
+  | { type: 'hold'; duration?: number }  // hold for duration ms, then unlocks the next button in the array
 
 export interface StepButton {
   label: string
@@ -100,6 +101,7 @@ export const STEPS: Step[] = [
     label: 'Home',
     video: video1,
     buttons: [
+      { label: 'HOLD TO START', action: { type: 'hold', duration: 2000 } },
       { label: 'START', action: { type: 'goto', stepId: 'restraint' } },
     ],
   },
