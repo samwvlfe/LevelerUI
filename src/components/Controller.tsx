@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
 import './Controller.css'
 import logo from '../assets/images/logo.png'
+import power from '../assets/images/power.png'
 import { STEPS, STEP_MAP } from '../sequence'
 import type { ButtonAction } from '../sequence'
 import { SplitChoice } from './SplitChoice'
 import { Screensaver } from './Screensaver'
 import { useIdleTimer } from '../hooks/useIdleTimer'
 
-const IDLE_TIMEOUT_MS = 120_000 // 30 seconds — change this to adjust
+const IDLE_TIMEOUT_MS = 120_000
 
 function useClock() {
   const [now, setNow] = useState(new Date())
@@ -24,12 +25,13 @@ export function Controller() {
   const [history, setHistory] = useState<string[]>([])
   const [holdState, setHoldState] = useState<{ key: string; progress: number } | null>(null)
   const [flashKey, setFlashKey] = useState<string | null>(null)
+  const [completedHoldKeys, setCompletedHoldKeys] = useState<Set<string>>(new Set())
+  const [powerOn, setPowerOn] = useState(false)
   const holdIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const now = useClock()
 
   const step = STEP_MAP[stepId]
 
-  // Show screensaver after idle timeout, from any screen
   useIdleTimer(IDLE_TIMEOUT_MS, () => setShowScreensaver(true))
 
   // Cancel hold and clear flash state whenever the step changes
@@ -40,6 +42,7 @@ export function Controller() {
     }
     setHoldState(null)
     setFlashKey(null)
+    setCompletedHoldKeys(new Set())
   }, [stepId])
 
   function cancelHold() {
@@ -61,16 +64,14 @@ export function Controller() {
         clearInterval(interval)
         holdIntervalRef.current = null
         setHoldState(null)
+        setCompletedHoldKeys((prev) => new Set(prev).add(key))
         onComplete()
       }
-    }, 16) // ~60fps updates
+    }, 16)
     holdIntervalRef.current = interval
   }
 
   function dismissScreensaver() {
-    // Reset to home whenever screensaver is dismissed
-    setStepId(STEPS[0].id)
-    setHistory([])
     setShowScreensaver(false)
   }
 
@@ -102,7 +103,6 @@ export function Controller() {
 
   return (
     <div className="app">
-
       {showScreensaver && (
         <Screensaver doorLabel="Door 2112" onDismiss={dismissScreensaver} />
       )}
@@ -123,8 +123,6 @@ export function Controller() {
             <div className="step-name">{step.label}</div>
           </>
         )}
-
-        {/* step-name for choice steps sits above the split layout */}
         {step.type === 'choice' && (
           <div className="step-name">{step.label}</div>
         )}
@@ -133,57 +131,78 @@ export function Controller() {
       <div className="footer">
         <img src={logo} alt="dockstar logo" className="ds-menu-logo" />
 
-        <div className="control-cont">
-<<<<<<< HEAD
-          {step.buttons.map((btn, i) => (
-            <div key={i} className="btn-cont" onClick={() => handleAction(btn.action)}>
-              <img src={btn.image} className="button" alt="button logo" />
-            </div>
-          ))}
-=======
-          {step.buttons.map((btn, i) => {
-            const btnKey = `${stepId}-${i}`
-            const isHold = btn.action.type === 'hold'
-            const isHolding = holdState?.key === btnKey
-            const isFlashing = flashKey === btnKey
-            const progress = isHolding ? holdState!.progress : 0
+        <div className="perm-btns-wrap">
+          <div className="control-cont">
+            {step.buttons.map((btn, i) => {
+              const btnKey = `${stepId}-${i}`
+              const isHold = btn.action.type === 'hold'
+              const isHolding = holdState?.key === btnKey
+              const isFlashing = flashKey === btnKey
+              const isHoldDone = completedHoldKeys.has(btnKey)
+              const progress = isHolding ? holdState!.progress : 0
 
-            if (isHold) {
-              const duration = btn.action.type === 'hold' ? (btn.action.duration ?? 2000) : 2000
+              // Locked if any earlier button in this step is a hold not yet completed
+              const isLocked = !isHold && step.buttons.slice(0, i).some((b, j) => {
+                const priorKey = `${stepId}-${j}`
+                return b.action.type === 'hold' && !completedHoldKeys.has(priorKey)
+              })
+
+              if (isHold) {
+                const duration =
+                  btn.action.type === 'hold' ? (btn.action.duration ?? 2000) : 2000
+
+                return (
+                  <div
+                    key={i}
+                    className={[
+                      'btn-cont',
+                      isHolding ? 'btn-cont--holding' : isHoldDone ? '' : 'btn-cont--hold-idle',
+                    ].filter(Boolean).join(' ')}
+                    style={
+                      isHolding
+                        ? ({ '--hold-progress': progress } as React.CSSProperties)
+                        : undefined
+                    }
+                    onPointerDown={(e) => {
+                      e.currentTarget.setPointerCapture(e.pointerId)
+                      startHold(btnKey, duration, () => {
+                        setFlashKey(`${stepId}-${i + 1}`)
+                      })
+                    }}
+                    onPointerUp={cancelHold}
+                    onPointerLeave={cancelHold}
+                    onPointerCancel={cancelHold}
+                  >
+                    <img className="button" src={btn.image} alt="action button" />
+                  </div>
+                )
+              }
+
               return (
                 <div
                   key={i}
-                  className={isHolding ? 'button button-holding' : 'button'}
-                  style={isHolding ? ({ '--hold-progress': progress } as React.CSSProperties) : undefined}
-                  onPointerDown={(e) => {
-                    e.currentTarget.setPointerCapture(e.pointerId)
-                    startHold(btnKey, duration, () => {
-                      setFlashKey(`${stepId}-${i + 1}`)
-                    })
+                  className={[
+                    'btn-cont',
+                    isLocked ? 'btn-cont--locked' : isFlashing ? 'btn-cont--flash' : '',
+                  ].filter(Boolean).join(' ')}
+                  onClick={() => {
+                    if (isLocked) return
+                    if (isFlashing) setFlashKey(null)
+                    handleAction(btn.action)
                   }}
-                  onPointerUp={cancelHold}
-                  onPointerLeave={cancelHold}
-                  onPointerCancel={cancelHold}
                 >
-                  {btn.label}
+                  <img className="button" src={btn.image} alt="action button" />
                 </div>
               )
-            }
+            })}
+          </div>
 
-            return (
-              <div
-                key={i}
-                className={['button', isFlashing ? 'button-flash' : ''].filter(Boolean).join(' ')}
-                onClick={() => {
-                  if (isFlashing) setFlashKey(null)
-                  handleAction(btn.action)
-                }}
-              >
-                {btn.label}
-              </div>
-            )
-          })}
->>>>>>> 23073bcae50d9df8c4fc3faf66061de8c6721d45
+          <div
+            className={['btn-cont', powerOn ? 'btn-cont--power-on' : 'btn-cont--power-off'].join(' ')}
+            onClick={() => setPowerOn((prev) => !prev)}
+          >
+            <img src={power} alt="power button" className="button" />
+          </div>
         </div>
 
         <div className="footer-data">
@@ -191,7 +210,6 @@ export function Controller() {
           <div className="footer-date">{dateStr}</div>
         </div>
       </div>
-
     </div>
   )
 }

@@ -60,60 +60,101 @@
   flex-shrink: 0;
 }
 
+/* ── All buttons wrap + permanent buttons (power + door up/down) ── */
+.perm-btns-wrap{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex: 1;
+  padding: 0 50px;
+}
+
 /* ── Center column: control buttons ── */
 .control-cont {
   display: flex;
   align-items: center;
   gap: 20px;
+  justify-content: center;
+  flex: 1;
 }
 
-.btn-cont{
+/* ── Button wrapper: always white border by default ── */
+.btn-cont {
   border: 2px solid white;
   border-radius: 10px;
   padding: 5px;
+  cursor: pointer;
+  position: relative;       /* needed for conic pseudo-element */
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .btn-cont:active {
-  border-color: #21a42c;
+  transform: scale(1.05);
 }
 
-.button{
-  width: 70px;
-  height: 70px;
-  -webkit-user-drag: none;
-  pointer-events: none;
-}
-
-/* Hold button: clockwise green border progress via conic-gradient */
-.button-holding {
-  border: 2px solid transparent;
-  background:
-    linear-gradient(#000, #000) padding-box,
-    conic-gradient(
-      from 0deg,
-      #21a42c calc(var(--hold-progress, 0) * 1%),
-      white calc(var(--hold-progress, 0) * 1%)
-    ) border-box;
-  color: #21a42c;
-}
-
-/* Next button flashes green once hold is complete */
-@keyframes flashBorder {
+/* ── Hold button idle: flashing green border ── */
+@keyframes flashGreen {
   0%, 100% {
     border-color: #21a42c;
-    color: #21a42c;
-    box-shadow: 0 0 12px rgba(33, 164, 44, 0.5);
+    box-shadow: 0 0 10px rgba(33, 164, 44, 0.7);
   }
   50% {
-    border-color: rgba(33, 164, 44, 0.15);
-    color: white;
+    border-color: rgba(33, 164, 44, 0.2);
     box-shadow: none;
   }
 }
 
-.button-flash {
-  animation: flashBorder 0.6s ease-in-out infinite;
+.btn-cont--hold-idle {
+  animation: flashGreen 1s ease-in-out infinite;
+}
+
+/* ── Hold button while held: clockwise conic progress border ──
+   Technique: transparent border + background-clip trick so the
+   conic gradient shows through only the border area.           */
+.btn-cont--holding {
+  animation: none;
+  border-color: transparent;
+  background:
+    /* solid black fill for the padding+content area */
+    linear-gradient(black, black) padding-box,
+    /* conic sweeps clockwise from 12 o'clock:
+       green arc → white remainder                  */
+    conic-gradient(
+      from -90deg,
+      #21a42c 0deg,
+      #21a42c calc(var(--hold-progress, 0) * 3.6deg),
+      white   calc(var(--hold-progress, 0) * 3.6deg),
+      white   360deg
+    ) border-box;
+}
+
+/* ── Next button flashes green after hold completes ── */
+@keyframes flashNext {
+  0%, 100% {
+    border-color: #21a42c;
+    box-shadow: 0 0 12px rgba(33, 164, 44, 0.8);
+  }
+  50% {
+    border-color: rgba(33, 164, 44, 0.15);
+    box-shadow: none;
+  }
+}
+
+.btn-cont--flash {
+  animation: flashNext 0.6s ease-in-out infinite;
   border-color: #21a42c;
-  color: #21a42c;
+}
+
+/* ── The image inside each button wrapper ── */
+.button {
+  width: 70px;
+  height: 70px;
+  display: block;
+  -webkit-user-drag: none;
+  pointer-events: none;
 }
 
 /* ── Right column: date & time ── */
@@ -140,4 +181,25 @@
   font-weight: 400;
   line-height: 1.1;
   opacity: 0.85;
+}
+
+/* ── Locked button: grey border, no pointer interaction ── */
+.btn-cont--locked {
+  border-color: #555;
+  cursor: default;
+  opacity: 0.5;
+}
+
+.btn-cont--locked .button {
+  opacity: 0.5;
+}
+/* ── Power button: off state (default white border) ── */
+.btn-cont--power-off {
+  border-color: white;
+}
+
+/* ── Power button: on state (solid green border + glow) ── */
+.btn-cont--power-on {
+  border-color: #21a42c;
+  box-shadow: 0 0 10px rgba(33, 164, 44, 0.8);
 }

@@ -70,7 +70,6 @@ import regularLoadImg from './assets/images/regularLoad.png'
 export type ButtonAction =
   | { type: 'goto'; stepId: string }
   | { type: 'back' }
-  | { type: 'hold' }
   | { type: 'none' }
   | { type: 'hold'; duration?: number }  // hold for duration ms, then unlocks the next button in the array
 
@@ -115,12 +114,7 @@ export const STEPS: Step[] = [
     label: 'Home',
     video: video1,
     buttons: [
-<<<<<<< HEAD
       { image: next, action: { type: 'goto', stepId: 'restraint' } },
-=======
-      { label: 'HOLD TO START', action: { type: 'hold', duration: 2000 } },
-      { label: 'START', action: { type: 'goto', stepId: 'restraint' } },
->>>>>>> 23073bcae50d9df8c4fc3faf66061de8c6721d45
     ],
   },
 
@@ -130,7 +124,7 @@ export const STEPS: Step[] = [
     video: video2,
     buttons: [
       { image: prev,     action: { type: 'back' } },
-      { image: rest_lock, action: {type: 'hold'} },
+      { image: rest_lock, action: {type: 'hold', duration: 3000 } },
       { image: next, action: { type: 'goto', stepId: 'door' } },
     ],
     holdDown: true,
@@ -191,7 +185,7 @@ export const STEPS: Step[] = [
     video: video7,
     buttons: [
       { image: prev,   action: { type: 'back' } }, //ensure it goes to previous no matter where it came from
-      { image: loading, action: {type: 'hold'} },
+      { image: loading, action: {type: 'none'} },
       { image: next, action: { type: 'goto', stepId: 'which-load' } },
     ],
   },
@@ -260,7 +254,7 @@ export const STEPS: Step[] = [
   {
     type: 'choice',
     id: 'which-unload',
-    label: 'Unload Selection geus',
+    label: 'Unload Selection',
     left: {
       image: endLoadImg,
       label: 'End Load',
