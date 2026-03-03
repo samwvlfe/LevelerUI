@@ -5,6 +5,7 @@ import { Controller } from './components/Controller'
 function App() {
   return (
     <main className="app-root">
+      <div className="portrait-overlay">Rotate your device to landscape</div>
       <Controller />
     </main>
   )

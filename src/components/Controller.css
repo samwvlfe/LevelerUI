@@ -255,3 +255,40 @@
   border-color: #21a42c;
   box-shadow: 0 0 10px rgba(33, 164, 44, 0.8);
 }
+
+/* ── Mobile landscape: shrink footer + buttons to fit phone width ── */
+@media (max-height: 500px) and (orientation: landscape) {
+  .footer {
+    height: 72px;
+    padding: 0 8px;
+  }
+  .perm-btns-wrap {
+    padding: 0 6px;
+    gap: 8px;
+  }
+  .control-cont {
+    gap: 8px;
+  }
+  .button {
+    width: 48px;
+    height: 48px;
+  }
+  .ds-menu-logo {
+    height: 44px;
+  }
+  .footer-time {
+    font-size: 18px;
+  }
+  .footer-date {
+    font-size: 13px;
+  }
+  .footer-data {
+    min-width: 100px;
+  }
+  .step-name {
+    font-size: 24px;
+  }
+  .door-controls {
+    bottom: 72px;
+  }
+}
