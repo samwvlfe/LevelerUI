@@ -124,7 +124,7 @@ export const STEPS: Step[] = [
     video: video2,
     buttons: [
       { image: prev,     action: { type: 'back' } },
-      { image: rest_lock, action: {type: 'hold', duration: 3000 } },
+      { image: rest_lock, action: {type: 'hold', duration: 2000 } },
       { image: next, action: { type: 'goto', stepId: 'door' } },
     ],
     holdDown: true,
@@ -136,7 +136,7 @@ export const STEPS: Step[] = [
     video: video3,
     buttons: [
       { image: prev,   action: { type: 'back' } },
-      { image: door_up, action: {type: 'hold'} },
+      { image: door_up, action: {type: 'hold', duration: 2000 } },
       { image: next, action: { type: 'goto', stepId: 'which-unload' } },
     ],
     holdDown: true,
@@ -149,8 +149,8 @@ export const STEPS: Step[] = [
     label: 'End Load',
     video: video4,
     buttons: [
-      { image: prev,   action: { type: 'goto', stepId: 'which-load' } },
-      { image: leveler_eng, action: {type: 'hold'} },
+      { image: prev,   action: { type: 'back' } },
+      { image: leveler_eng, action: {type: 'hold', duration: 2000 } },
       { image: next, action: { type: 'goto', stepId: 'endload-unload' } },
     ],
     holdDown: true,
@@ -161,7 +161,7 @@ export const STEPS: Step[] = [
     label: 'End Unloading',
     video: video5,
     buttons: [
-      { image: prev,   action: { type: 'goto', stepId: 'endload-position' } },
+      { image: prev,   action: { type: 'back' } },
       { image: loading, action: {type: 'none'} },
       { image: next, action: { type: 'goto', stepId: 'reg-load-position' } },
     ],
@@ -172,8 +172,8 @@ export const STEPS: Step[] = [
     label: 'Standard Load',
     video: video6,
     buttons: [
-      { image: prev,   action: { type: 'back' } }, //ensure it goes to previous no matter where it came from
-      { image: leveler_eng, action: {type: 'hold'} },
+      { image: prev,   action: { type: 'back' } },
+      { image: leveler_eng, action: {type: 'hold', duration: 2000 } },
       { image: next, action: { type: 'goto', stepId: 'load-unload' } },
     ],
     holdDown: true,
@@ -184,7 +184,7 @@ export const STEPS: Step[] = [
     label: 'Standard Loading',
     video: video7,
     buttons: [
-      { image: prev,   action: { type: 'back' } }, //ensure it goes to previous no matter where it came from
+      { image: prev,   action: { type: 'back' } },
       { image: loading, action: {type: 'none'} },
       { image: next, action: { type: 'goto', stepId: 'which-load' } },
     ],
@@ -195,8 +195,22 @@ export const STEPS: Step[] = [
     label: 'End Load',
     video: video8,
     buttons: [
-      { image: prev,   action: { type: 'back' } }, //ensure it goes to previous no matter where it came from
-      { image: leveler_down, action: {type: 'hold'} },
+      { image: prev,   action: { type: 'back' } },
+      { image: leveler_down, action: {type: 'hold', duration: 2000 } },
+      { image: next, action: { type: 'goto', stepId: 'endload-position-2' } },
+    ],
+    holdDown: true,
+  },
+
+  {
+    // user selected end load, this is step that puts leveler in end load position
+    // next step is end loading
+    id: 'endload-position-2',
+    label: 'End Load',
+    video: video4,
+    buttons: [
+      { image: prev,   action: { type: 'back' } },
+      { image: leveler_eng, action: {type: 'hold', duration: 2000 } },
       { image: next, action: { type: 'goto', stepId: 'endload-load' } },
     ],
     holdDown: true,
@@ -207,7 +221,7 @@ export const STEPS: Step[] = [
     label: 'End Loading',
     video: video9,
     buttons: [
-      { image: prev,   action: { type: 'goto' , stepId: 'store-leveler' } },
+      { image: prev,   action: { type: 'back' } },
       { image: loading, action: {type: 'none'} },
       { image: next, action: { type: 'goto', stepId: 'leveler-complete' } },
     ],
@@ -219,7 +233,7 @@ export const STEPS: Step[] = [
     video: video10,
     buttons: [
       { image: prev,   action: { type: 'back' } },
-      { image: leveler_down, action: {type: 'hold'} },
+      { image: leveler_down, action: {type: 'hold', duration: 2000 } },
       { image: next, action: { type: 'goto', stepId: 'lower-door' } },
     ],
     holdDown: true,
@@ -230,8 +244,8 @@ export const STEPS: Step[] = [
     label: 'Lower Door',
     video: video11,
     buttons: [
-      { image: prev,   action: { type: 'goto', stepId: 'leveler-complete' } },
-      { image: door_down, action: {type: 'hold'} },
+      { image: prev,   action: { type: 'back' } },
+      { image: door_down, action: {type: 'hold', duration: 2000 } },
       { image: next, action: { type: 'goto', stepId: 'restriant-disengage' } },
     ],
     holdDown: true,
@@ -242,8 +256,8 @@ export const STEPS: Step[] = [
     label: 'Lower Restraint',
     video: video12,
     buttons: [
-      { image: prev,   action: { type: 'goto', stepId: 'lower-door' } },
-      { image: rest_unlock, action: {type: 'hold'} },
+      { image: prev,   action: { type: 'back' } },
+      { image: rest_unlock, action: {type: 'hold', duration: 2000 } },
       { image: next, action: { type: 'goto', stepId: 'home' } },
     ],
     holdDown: true,

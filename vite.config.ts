@@ -66,13 +66,13 @@ export default defineConfig({
         scope: '/',
         icons: [
           {
-            src: '/icons/icon-192x192.png',
+            src: '/icons/pwa-icon-192x192.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any maskable',
           },
           {
-            src: '/icons/icon-512x512.png',
+            src: '/icons/high-res-icon-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable',

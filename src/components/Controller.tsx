@@ -2,13 +2,27 @@ import { useState, useEffect, useRef } from 'react'
 import './Controller.css'
 import logo from '../assets/images/logo.png'
 import power from '../assets/images/power.png'
+import door from '../assets/images/door.png'
+import door_up from '../assets/images/door-up.png'
+import door_stop from '../assets/images/door-stop.png'
+import door_down from '../assets/images/door-down.png'
 import { STEPS, STEP_MAP } from '../sequence'
 import type { ButtonAction } from '../sequence'
 import { SplitChoice } from './SplitChoice'
 import { Screensaver } from './Screensaver'
 import { useIdleTimer } from '../hooks/useIdleTimer'
 
-const IDLE_TIMEOUT_MS = 120_000
+const IDLE_TIMEOUT_MS = 240_000
+
+const MENU_ITEMS: { label: string; stepId: string | null }[] = [
+  { label: 'Home',                stepId: 'home' },
+  { label: 'Engage Restraint',    stepId: 'restraint' },
+  { label: 'Open Door',           stepId: 'door' },
+  { label: 'Unload Selection',    stepId: 'which-unload' },
+  { label: 'Load Selection',      stepId: 'which-load' },
+  { label: 'Close Door',          stepId: 'lower-door' },
+  { label: 'Disengage Restraint', stepId: 'restriant-disengage' },
+]
 
 function useClock() {
   const [now, setNow] = useState(new Date())
@@ -27,6 +41,8 @@ export function Controller() {
   const [flashKey, setFlashKey] = useState<string | null>(null)
   const [completedHoldKeys, setCompletedHoldKeys] = useState<Set<string>>(new Set())
   const [powerOn, setPowerOn] = useState(false)
+  const [doorOpen, setDoorOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const holdIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const now = useClock()
 
@@ -129,8 +145,32 @@ export function Controller() {
       </div>
 
       <div className="footer">
-        <img src={logo} alt="dockstar logo" className="ds-menu-logo" />
-
+        <div className="menu-cont">
+          <img
+            src={logo}
+            alt="dockstar logo"
+            className="ds-menu-logo"
+            onClick={() => setMenuOpen(prev => !prev)}
+          />
+          {menuOpen && (
+            <div className="pu-menu">
+              {MENU_ITEMS.map((item) => (
+                <div
+                  key={item.label}
+                  className="menu-item"
+                  onClick={() => {
+                    if (item.stepId) {
+                      setStepId(item.stepId)
+                      setMenuOpen(false)
+                    }
+                  }}
+                >
+                  {item.label}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         <div className="perm-btns-wrap">
           <div className="control-cont">
             {step.buttons.map((btn, i) => {
@@ -196,12 +236,21 @@ export function Controller() {
               )
             })}
           </div>
-
+          <div className="btn-cont door-controll-cont" onClick={() => setDoorOpen(prev => !prev)}>
+            <img src={door} alt="asynchronous door controls" className="button"/>
+            {doorOpen && (
+              <div className="door-controls" onClick={e => e.stopPropagation()}>
+                <img src={door_down} alt="door down button" className="button" />
+                <img src={door_stop} alt="door stop button" className="button" />
+                <img src={door_up} alt="door up button" className="button" />
+              </div>
+            )}
+          </div>
           <div
             className={['btn-cont', powerOn ? 'btn-cont--power-on' : 'btn-cont--power-off'].join(' ')}
             onClick={() => setPowerOn((prev) => !prev)}
           >
-            <img src={power} alt="power button" className="button" />
+            <img src={power} alt="outlet power button" className="button" />
           </div>
         </div>
 
