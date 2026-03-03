@@ -36,7 +36,7 @@ function useClock() {
 export function Controller() {
   const [showScreensaver, setShowScreensaver] = useState(true)
   const [stepId, setStepId] = useState(STEPS[0].id)
-  const [history, setHistory] = useState<string[]>([])
+  const [_history, setHistory] = useState<string[]>([])
   const [holdState, setHoldState] = useState<{ key: string; progress: number } | null>(null)
   const [flashKey, setFlashKey] = useState<string | null>(null)
   const [completedHoldKeys, setCompletedHoldKeys] = useState<Set<string>>(new Set())
