@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">LevelerUI</string>
+    <string name="title_activity_main">LevelerUI</string>
+    <string name="package_name">com.leveler.ui</string>
+    <string name="custom_url_scheme">com.leveler.ui</string>
+</resources>
