@@ -28,8 +28,8 @@ import leveler_down from './assets/images/leveler-down.png'
 import loading from './assets/images/active-loading.png'
 
 // Choice step images
-import endLoadImg from './assets/images/EndLoad.png'
-import regularLoadImg from './assets/images/regularLoad.png'
+import endLoadImg from './assets/images/end-load.png'
+import regularLoadImg from './assets/images/reg-load.png'
 
 // ── Types ────────────────────────────────────────────────────
 
