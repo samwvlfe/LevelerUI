@@ -1,39 +1,5 @@
 // ============================================================
-// SEQUENCE CONFIG — PRIMARY SWAP POINT
-// ============================================================
-// This is the only file you need to edit to change:
-//   - What video plays at each step
-//   - What label shows in the top-right corner
-//   - What buttons appear in the footer
-//   - Where each button takes the user (linear or branching)
-//
-// STEP TYPES
-// ─────────────────
-// video  (default) — plays a looping .mp4 in the main area
-//   Required fields: video, buttons
-//
-// choice           — fills the main area with two tappable image halves
-//   Required fields: left, right, buttons
-//   left / right each have: image, label, action
-//   Tapping a half navigates via its action — no footer button needed for the choice itself.
-//
-// HOW BUTTONS WORK
-// ─────────────────
-// Each button (footer) has:
-//   label      — text shown on the button
-//   action     — one of:
-//                  { type: 'goto', stepId: 'some-step' }  → jumps to that step
-//                  { type: 'back' }                        → goes to previous step in history
-//                  { type: 'none' }                        → does nothing (placeholder)
-//
-// VIDEO PATHS
-// ─────────────────
-// Import your .mp4 files at the top of this file, then reference them in each step.
-// A step can reuse the same video as another step — just pass the same import.
-//
-// CHOICE IMAGES
-// ─────────────────
-// Import your images at the top of this file, then reference them in left.image / right.image.
+// SEQUENCE CONFIG
 // ============================================================
 
 // Videos
