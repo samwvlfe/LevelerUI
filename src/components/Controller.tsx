@@ -13,6 +13,9 @@ import { Screensaver } from './Screensaver'
 import { useIdleTimer } from '../hooks/useIdleTimer'
 
 const IDLE_TIMEOUT_MS = 240_000
+const DOOR_LIGHT_COUNT = 4
+const DOOR_LIGHT_DURATION_MS = 2500   // ← change this to adjust animation speed
+const DOOR_LIGHT_STEPS = ['door', 'lower-door']
 
 const MENU_ITEMS: { label: string; stepId: string | null }[] = [
   { label: 'Home',                stepId: 'home' },
@@ -35,6 +38,7 @@ function useClock() {
 
 export function Controller() {
   const [showScreensaver, setShowScreensaver] = useState(true)
+  const [doorLabel, setDoorLabel] = useState('Door 14')
   const [stepId, setStepId] = useState(STEPS[0].id)
   const [_history, setHistory] = useState<string[]>([])
   const [holdState, setHoldState] = useState<{ key: string; progress: number } | null>(null)
@@ -43,7 +47,19 @@ export function Controller() {
   const [powerOn, setPowerOn] = useState(false)
   const [doorOpen, setDoorOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [freezeTriggered, setFreezeTriggered] = useState(false)
+  const [videoFrozen, setVideoFrozen] = useState(false)
+  const [pendingChoiceAction, setPendingChoiceAction] = useState<ButtonAction | null>(null)
+  const [timerMs, setTimerMs] = useState(0)
+  const [timerRunning, setTimerRunning] = useState(false)
+  const [doorLightIndex, setDoorLightIndex] = useState<number | null>(null)
+  const [doorLightAnimating, setDoorLightAnimating] = useState(false)
   const holdIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const timerStartRef = useRef<number>(0)
+  const doorLightIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const freezeReadyRef = useRef(false)
   const now = useClock()
 
   const step = STEP_MAP[stepId]
@@ -57,8 +73,22 @@ export function Controller() {
       holdIntervalRef.current = null
     }
     setHoldState(null)
-    setFlashKey(null)
     setCompletedHoldKeys(new Set())
+    setFreezeTriggered(false)
+    setVideoFrozen(false)
+    freezeReadyRef.current = false
+    setPendingChoiceAction(null)
+    if (doorLightIntervalRef.current) {
+      clearInterval(doorLightIntervalRef.current)
+      doorLightIntervalRef.current = null
+    }
+    setDoorLightAnimating(false)
+    setDoorLightIndex(stepId === 'lower-door' ? 0 : null)
+
+    // Auto-flash any button marked flashOnMount
+    const currentStep = STEP_MAP[stepId]
+    const mountFlashIndex = currentStep.buttons.findIndex((b) => b.flashOnMount)
+    setFlashKey(mountFlashIndex !== -1 ? `${stepId}-${mountFlashIndex}` : null)
   }, [stepId])
 
   function cancelHold() {
@@ -67,6 +97,52 @@ export function Controller() {
       holdIntervalRef.current = null
     }
     setHoldState(null)
+  }
+
+  function startTimer() {
+    if (timerIntervalRef.current) clearInterval(timerIntervalRef.current)
+    timerStartRef.current = Date.now()
+    setTimerMs(0)
+    setTimerRunning(true)
+    timerIntervalRef.current = setInterval(() => {
+      setTimerMs(Date.now() - timerStartRef.current)
+    }, 1000)
+  }
+
+  function stopTimer() {
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current)
+      timerIntervalRef.current = null
+    }
+    setTimerMs(Date.now() - timerStartRef.current)
+    setTimerRunning(false)
+  }
+
+  function startDoorLightAnimation(direction: 'up' | 'down', onComplete: () => void) {
+    if (doorLightIntervalRef.current) clearInterval(doorLightIntervalRef.current)
+    const intervalMs = DOOR_LIGHT_DURATION_MS / (DOOR_LIGHT_COUNT - 1)
+    let current = direction === 'up' ? DOOR_LIGHT_COUNT - 1 : 0
+    setDoorLightIndex(current)
+    setDoorLightAnimating(true)
+    doorLightIntervalRef.current = setInterval(() => {
+      current = direction === 'up' ? current - 1 : current + 1
+      setDoorLightIndex(current)
+      const done = direction === 'up' ? current <= 0 : current >= DOOR_LIGHT_COUNT - 1
+      if (done) {
+        clearInterval(doorLightIntervalRef.current!)
+        doorLightIntervalRef.current = null
+        setDoorLightAnimating(false)
+        onComplete()
+      }
+    }, intervalMs)
+  }
+
+  function formatTimer(ms: number) {
+    const totalSecs = Math.floor(ms / 1000)
+    const h = Math.floor(totalSecs / 3600)
+    const m = Math.floor((totalSecs % 3600) / 60)
+    const s = totalSecs % 60
+    return [h, m, s].map((v) => String(v).padStart(2, '0')).join(':')
   }
 
   function startHold(key: string, duration: number, onComplete: () => void) {
@@ -102,7 +178,15 @@ export function Controller() {
         setStepId(prev)
         return h.slice(0, -1)
       })
+    } else if (action.type === 'goto-selected' && pendingChoiceAction) {
+      handleAction(pendingChoiceAction)
     }
+  }
+
+  function handleChoiceSelect(action: ButtonAction) {
+    setPendingChoiceAction(action)
+    const nextIdx = step.buttons.findIndex((b) => b.action.type === 'goto-selected')
+    if (nextIdx !== -1) setFlashKey(`${stepId}-${nextIdx}`)
   }
 
   const timeStr = now.toLocaleTimeString('en-US', {
@@ -120,27 +204,64 @@ export function Controller() {
   return (
     <div className="app">
       {showScreensaver && (
-        <Screensaver doorLabel="Door 2112" onDismiss={dismissScreensaver} />
+        <Screensaver doorLabel={doorLabel} onDismiss={dismissScreensaver} onRename={setDoorLabel} />
       )}
 
       <div className="video-wrap">
         {step.type === 'choice' ? (
-          <SplitChoice step={step} onAction={handleAction} />
+          <SplitChoice key={stepId} step={step} onSelect={handleChoiceSelect} />
         ) : (
           <>
             <video
+              ref={videoRef}
               key={step.video}
               src={step.video}
               autoPlay
               muted
               playsInline
               loop
+              onTimeUpdate={() => {
+                const vid = videoRef.current
+                if (!vid || !step.freezeAt || !freezeTriggered) return
+                if (!freezeReadyRef.current) {
+                  // Still in the zone when button was pressed — wait until we loop past it
+                  if (vid.currentTime < vid.duration - step.freezeAt) {
+                    freezeReadyRef.current = true
+                  }
+                  return
+                }
+                if (vid.currentTime >= vid.duration - step.freezeAt) {
+                  vid.pause()
+                  setVideoFrozen(true)
+                  if (stepId === 'restraint') startTimer()
+                  // Door steps get their flash from the light animation completion, not here
+                  if (!DOOR_LIGHT_STEPS.includes(stepId)) {
+                    const holdIdx = step.buttons.findIndex(b => b.action.type === 'hold')
+                    if (holdIdx !== -1) setFlashKey(`${stepId}-${holdIdx + 1}`)
+                  }
+                }
+              }}
             />
-            <div className="step-name">{step.label}</div>
+            <div className="top-right-hud">
+              <div className="step-name">{step.label}</div>
+              <div className="load-timer">
+                <span>Load Timer</span>
+                <div className="timer">{formatTimer(timerMs)}</div>
+              </div>
+            </div>
           </>
         )}
         {step.type === 'choice' && (
-          <div className="step-name">{step.label}</div>
+          <div className="top-right-hud">
+            <div className="step-name">{step.label}</div>
+          </div>
+        )}
+        {DOOR_LIGHT_STEPS.includes(stepId) && (
+          <div className="door-lights">
+            {Array.from({ length: DOOR_LIGHT_COUNT }, (_, i) => (
+              <div key={i} className={`light${doorLightIndex === i ? ' on' : ''}`} />
+            ))}
+          </div>
         )}
       </div>
 
@@ -181,11 +302,17 @@ export function Controller() {
               const isHoldDone = completedHoldKeys.has(btnKey)
               const progress = isHolding ? holdState!.progress : 0
 
-              // Locked if any earlier button in this step is a hold not yet completed
-              const isLocked = !isHold && step.buttons.slice(0, i).some((b, j) => {
+              // Locked if any earlier button in this step is a hold not yet completed,
+              // or if this step has a freeze and the video hasn't frozen yet
+              const hasPriorIncompleteHold = step.buttons.slice(0, i).some((b, j) => {
                 const priorKey = `${stepId}-${j}`
                 return b.action.type === 'hold' && !completedHoldKeys.has(priorKey)
               })
+              const awaitingFreeze = step.type !== 'choice' && !!step.freezeAt && !videoFrozen &&
+                step.buttons.slice(0, i).some(b => b.action.type === 'hold')
+              const awaitingSelection = btn.action.type === 'goto-selected' && !pendingChoiceAction
+              const awaitingDoorLights = DOOR_LIGHT_STEPS.includes(stepId) && doorLightAnimating
+              const isLocked = !isHold && (hasPriorIncompleteHold || awaitingFreeze || awaitingSelection || awaitingDoorLights)
 
               if (isHold) {
                 const duration =
@@ -206,7 +333,25 @@ export function Controller() {
                     onPointerDown={(e) => {
                       e.currentTarget.setPointerCapture(e.pointerId)
                       startHold(btnKey, duration, () => {
-                        setFlashKey(`${stepId}-${i + 1}`)
+                        const freezeAt = step.type !== 'choice' ? step.freezeAt : undefined
+                        if (freezeAt) {
+                          // Flash will happen once video actually freezes
+                          setFreezeTriggered(true)
+                          const vid = videoRef.current
+                          if (vid && vid.duration) {
+                            freezeReadyRef.current = vid.currentTime < vid.duration - freezeAt
+                          } else {
+                            freezeReadyRef.current = true
+                          }
+                        } else {
+                          // No freeze — flash next button immediately as before
+                          setFlashKey(`${stepId}-${i + 1}`)
+                        }
+                        if (stepId === 'restriant-disengage') stopTimer()
+                        if (DOOR_LIGHT_STEPS.includes(stepId)) {
+                          const dir = stepId === 'lower-door' ? 'down' : 'up'
+                          startDoorLightAnimation(dir, () => setFlashKey(`${stepId}-${i + 1}`))
+                        }
                       })
                     }}
                     onPointerUp={cancelHold}
@@ -228,6 +373,10 @@ export function Controller() {
                   onClick={() => {
                     if (isLocked) return
                     if (isFlashing) setFlashKey(null)
+                    if (btn.action.type === 'flash-next') {
+                      setFlashKey(`${stepId}-${i + 1}`)
+                      return
+                    }
                     handleAction(btn.action)
                   }}
                 >

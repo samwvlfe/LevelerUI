@@ -25,7 +25,7 @@ import door_up from './assets/images/door-up.png'
 import door_down from './assets/images/door-down.png'
 import leveler_eng from './assets/images/leveler-up.png'
 import leveler_down from './assets/images/leveler-down.png'
-import loading from './assets/images/active-loading.png'
+// import loading from './assets/images/active-loading.png'
 
 // Choice step images
 import endLoadImg from './assets/images/end-load.png'
@@ -38,10 +38,13 @@ export type ButtonAction =
   | { type: 'back' }
   | { type: 'none' }
   | { type: 'hold'; duration?: number }  // hold for duration ms, then unlocks the next button in the array
+  | { type: 'flash-next' }               // tap to manually flash the next button green
+  | { type: 'goto-selected' }            // navigates to whichever choice side the user selected
 
 export interface StepButton {
   image: string
   action: ButtonAction
+  flashOnMount?: boolean  // if true, this button starts flashing when the step loads
 }
 
 // A single side of a split-choice screen
@@ -59,6 +62,7 @@ export interface VideoStep {
   video: string          // imported .mp4 path
   buttons: StepButton[]  // 1–4 buttons in the footer center
   holdDown?: boolean       // if true, user must hold the button down for 2 seconds to trigger its action (default: false)
+  freezeAt?: number        // seconds from the END of the video to pause and hold as a static frame
 }
 
 // A choice step — fills the main area with two tappable image halves
@@ -80,7 +84,7 @@ export const STEPS: Step[] = [
     label: 'Home',
     video: video1,
     buttons: [
-      { image: next, action: { type: 'goto', stepId: 'restraint' } },
+      { image: next, action: { type: 'goto', stepId: 'restraint' }, flashOnMount: true },
     ],
   },
 
@@ -88,9 +92,10 @@ export const STEPS: Step[] = [
     id: 'restraint',
     label: 'Raise Restraint',
     video: video2,
+    freezeAt: 1.1,
     buttons: [
       { image: prev,     action: { type: 'back' } },
-      { image: rest_lock, action: {type: 'hold', duration: 2000 } },
+      { image: rest_lock, action: {type: 'hold', duration: 1 } },
       { image: next, action: { type: 'goto', stepId: 'door' } },
     ],
     holdDown: true,
@@ -100,9 +105,10 @@ export const STEPS: Step[] = [
     id: 'door',
     label: 'Raise Door',
     video: video3,
+    freezeAt: 1.1,
     buttons: [
       { image: prev,   action: { type: 'back' } },
-      { image: door_up, action: {type: 'hold', duration: 2000 } },
+      { image: door_up, action: {type: 'hold', duration: 1 } },
       { image: next, action: { type: 'goto', stepId: 'which-unload' } },
     ],
     holdDown: true,
@@ -114,9 +120,10 @@ export const STEPS: Step[] = [
     id: 'endload-position',
     label: 'End Load',
     video: video4,
+    freezeAt: 1.1,
     buttons: [
       { image: prev,   action: { type: 'back' } },
-      { image: leveler_eng, action: {type: 'hold', duration: 2000 } },
+      { image: leveler_eng, action: {type: 'hold', duration: 1 } },
       { image: next, action: { type: 'goto', stepId: 'endload-unload' } },
     ],
     holdDown: true,
@@ -128,8 +135,8 @@ export const STEPS: Step[] = [
     video: video5,
     buttons: [
       { image: prev,   action: { type: 'back' } },
-      { image: loading, action: {type: 'none'} },
-      { image: next, action: { type: 'goto', stepId: 'reg-load-position' } },
+      // { image: loading, action: { type: 'flash-next' } },
+      { image: next, action: { type: 'goto', stepId: 'reg-load-position' }, flashOnMount: true },
     ],
   },
 
@@ -137,9 +144,10 @@ export const STEPS: Step[] = [
     id: 'reg-load-position',
     label: 'Standard Load',
     video: video6,
+    freezeAt: 1.1,
     buttons: [
       { image: prev,   action: { type: 'back' } },
-      { image: leveler_eng, action: {type: 'hold', duration: 2000 } },
+      { image: leveler_eng, action: {type: 'hold', duration: 1 } },
       { image: next, action: { type: 'goto', stepId: 'load-unload' } },
     ],
     holdDown: true,
@@ -151,8 +159,8 @@ export const STEPS: Step[] = [
     video: video7,
     buttons: [
       { image: prev,   action: { type: 'back' } },
-      { image: loading, action: {type: 'none'} },
-      { image: next, action: { type: 'goto', stepId: 'which-load' } },
+      // { image: loading, action: { type: 'flash-next' } },
+      { image: next, action: { type: 'goto', stepId: 'which-load' }, flashOnMount: true },
     ],
   },
 
@@ -160,9 +168,10 @@ export const STEPS: Step[] = [
     id: 'store-leveler',
     label: 'End Load',
     video: video8,
+    freezeAt: 1.1,
     buttons: [
       { image: prev,   action: { type: 'back' } },
-      { image: leveler_down, action: {type: 'hold', duration: 2000 } },
+      { image: leveler_down, action: {type: 'hold', duration: 1 } },
       { image: next, action: { type: 'goto', stepId: 'endload-position-2' } },
     ],
     holdDown: true,
@@ -174,9 +183,10 @@ export const STEPS: Step[] = [
     id: 'endload-position-2',
     label: 'End Load',
     video: video4,
+    freezeAt: 1.1,
     buttons: [
       { image: prev,   action: { type: 'back' } },
-      { image: leveler_eng, action: {type: 'hold', duration: 2000 } },
+      { image: leveler_eng, action: {type: 'hold', duration: 1 } },
       { image: next, action: { type: 'goto', stepId: 'endload-load' } },
     ],
     holdDown: true,
@@ -188,8 +198,8 @@ export const STEPS: Step[] = [
     video: video9,
     buttons: [
       { image: prev,   action: { type: 'back' } },
-      { image: loading, action: {type: 'none'} },
-      { image: next, action: { type: 'goto', stepId: 'leveler-complete' } },
+      // { image: loading, action: { type: 'flash-next' } },
+      { image: next, action: { type: 'goto', stepId: 'leveler-complete' }, flashOnMount: true },
     ],
   },
 
@@ -197,9 +207,10 @@ export const STEPS: Step[] = [
     id: 'leveler-complete',
     label: 'Home Leveler',
     video: video10,
+    freezeAt: 1.1,
     buttons: [
       { image: prev,   action: { type: 'back' } },
-      { image: leveler_down, action: {type: 'hold', duration: 2000 } },
+      { image: leveler_down, action: {type: 'hold', duration: 1 } },
       { image: next, action: { type: 'goto', stepId: 'lower-door' } },
     ],
     holdDown: true,
@@ -209,9 +220,10 @@ export const STEPS: Step[] = [
     id: 'lower-door',
     label: 'Lower Door',
     video: video11,
+    freezeAt: 1.1,
     buttons: [
       { image: prev,   action: { type: 'back' } },
-      { image: door_down, action: {type: 'hold', duration: 2000 } },
+      { image: door_down, action: {type: 'hold', duration: 1 } },
       { image: next, action: { type: 'goto', stepId: 'restriant-disengage' } },
     ],
     holdDown: true,
@@ -221,9 +233,10 @@ export const STEPS: Step[] = [
     id: 'restriant-disengage',
     label: 'Lower Restraint',
     video: video12,
+    freezeAt: 1.1,
     buttons: [
       { image: prev,   action: { type: 'back' } },
-      { image: rest_unlock, action: {type: 'hold', duration: 2000 } },
+      { image: rest_unlock, action: {type: 'hold', duration: 1 } },
       { image: next, action: { type: 'goto', stepId: 'home' } },
     ],
     holdDown: true,
@@ -247,6 +260,7 @@ export const STEPS: Step[] = [
     },
     buttons: [
       { image: prev, action: { type: 'back' } },
+      { image: next, action: { type: 'goto-selected' } },
     ],
   },
 
@@ -261,11 +275,12 @@ export const STEPS: Step[] = [
     },
     right: {
       image: regularLoadImg,
-      label: 'Standard Load, Finish Loading',
-      action: { type: 'goto', stepId: 'leveler-complete' }, //COMPLETE THIS
+      label: 'Finish Loading',
+      action: { type: 'goto', stepId: 'leveler-complete' },
     },
     buttons: [
       { image: prev, action: { type: 'back' } },
+      { image: next, action: { type: 'goto-selected' } },
     ],
   }
 

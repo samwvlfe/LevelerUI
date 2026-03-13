@@ -24,6 +24,23 @@
   text-align: center;
 }
 
+/* ── Inline rename input ── */
+.screensaver-input {
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid rgba(255, 255, 255, 0.6);
+  outline: none;
+  color: white;
+  text-align: center;
+  width: 80vw;
+  max-width: 900px;
+  caret-color: white;
+}
+
+.screensaver-text{
+  color: white;
+}
+
 /* ── Subtle "tap to begin" hint, slowly pulsing ── */
 .screensaver-hint {
   color: rgba(255, 255, 255, 0.35);

@@ -81,6 +81,20 @@
   pointer-events: none;
 }
 
+/* ── Checked / unchecked selection icon ── */
+.split-check-icon {
+  padding: 0 0 5px 0;
+  border: 2px solid white;
+  border-radius: 10px;
+  position: relative;
+  z-index: 2;
+  margin-top: 16px;
+  width: clamp(36px, 5vw, 64px);
+  height: clamp(36px, 5vw, 64px);
+  object-fit: contain;
+  pointer-events: none;
+}
+
 /* ── Thin divider line between the two halves ── */
 .split-divider {
   width: 2px;
