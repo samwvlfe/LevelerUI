@@ -54,10 +54,12 @@ export function Controller() {
   const [timerRunning, setTimerRunning] = useState(false)
   const [doorLightIndex, setDoorLightIndex] = useState<number | null>(null)
   const [doorLightAnimating, setDoorLightAnimating] = useState(false)
+  const [doorPosition, setDoorPosition] = useState<number>(3) // 3 = closed/bottom, 0 = open/top
   const holdIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const timerStartRef = useRef<number>(0)
   const doorLightIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const currentDoorPosRef = useRef<number>(3)
   const videoRef = useRef<HTMLVideoElement>(null)
   const freezeReadyRef = useRef(false)
   const now = useClock()
@@ -83,7 +85,7 @@ export function Controller() {
       doorLightIntervalRef.current = null
     }
     setDoorLightAnimating(false)
-    setDoorLightIndex(stepId === 'lower-door' ? 0 : null)
+    setDoorLightIndex(DOOR_LIGHT_STEPS.includes(stepId) ? doorPosition : null)
 
     // Auto-flash any button marked flashOnMount
     const currentStep = STEP_MAP[stepId]
@@ -118,10 +120,10 @@ export function Controller() {
     setTimerRunning(false)
   }
 
-  function startDoorLightAnimation(direction: 'up' | 'down', onComplete: () => void) {
+  function startDoorLightAnimation(direction: 'up' | 'down', onComplete: () => void, fromIndex?: number) {
     if (doorLightIntervalRef.current) clearInterval(doorLightIntervalRef.current)
     const intervalMs = DOOR_LIGHT_DURATION_MS / (DOOR_LIGHT_COUNT - 1)
-    let current = direction === 'up' ? DOOR_LIGHT_COUNT - 1 : 0
+    let current = fromIndex ?? (direction === 'up' ? DOOR_LIGHT_COUNT - 1 : 0)
     setDoorLightIndex(current)
     setDoorLightAnimating(true)
     doorLightIntervalRef.current = setInterval(() => {
@@ -135,6 +137,37 @@ export function Controller() {
         onComplete()
       }
     }, intervalMs)
+  }
+
+  function startManualDoorMove(direction: 'up' | 'down') {
+    if (doorLightIntervalRef.current) clearInterval(doorLightIntervalRef.current)
+    const intervalMs = DOOR_LIGHT_DURATION_MS / (DOOR_LIGHT_COUNT - 1)
+    currentDoorPosRef.current = doorPosition
+    setDoorLightAnimating(true)
+    doorLightIntervalRef.current = setInterval(() => {
+      const next = direction === 'up'
+        ? currentDoorPosRef.current - 1
+        : currentDoorPosRef.current + 1
+      const clamped = Math.max(0, Math.min(DOOR_LIGHT_COUNT - 1, next))
+      currentDoorPosRef.current = clamped
+      setDoorLightIndex(clamped)
+      const atEnd = direction === 'up' ? clamped <= 0 : clamped >= DOOR_LIGHT_COUNT - 1
+      if (atEnd) {
+        clearInterval(doorLightIntervalRef.current!)
+        doorLightIntervalRef.current = null
+        setDoorLightAnimating(false)
+        setDoorPosition(clamped)
+      }
+    }, intervalMs)
+  }
+
+  function stopManualDoorMove() {
+    if (doorLightIntervalRef.current) {
+      clearInterval(doorLightIntervalRef.current)
+      doorLightIntervalRef.current = null
+    }
+    setDoorLightAnimating(false)
+    setDoorPosition(currentDoorPosRef.current)
   }
 
   function formatTimer(ms: number) {
@@ -245,7 +278,7 @@ export function Controller() {
             <div className="top-right-hud">
               <div className="step-name">{step.label}</div>
               <div className="load-timer">
-                <span>Load Timer</span>
+                <span>{timerRunning || timerMs === 0 ? 'Load Timer' : 'Last Load'}</span>
                 <div className="timer">{formatTimer(timerMs)}</div>
               </div>
             </div>
@@ -256,10 +289,10 @@ export function Controller() {
             <div className="step-name">{step.label}</div>
           </div>
         )}
-        {DOOR_LIGHT_STEPS.includes(stepId) && (
+        {(DOOR_LIGHT_STEPS.includes(stepId) || doorLightAnimating || doorOpen) && (
           <div className="door-lights">
             {Array.from({ length: DOOR_LIGHT_COUNT }, (_, i) => (
-              <div key={i} className={`light${doorLightIndex === i ? ' on' : ''}`} />
+              <div key={i} className={`light${(doorLightAnimating ? doorLightIndex : doorPosition) === i ? ' on' : ''}`} />
             ))}
           </div>
         )}
@@ -350,7 +383,10 @@ export function Controller() {
                         if (stepId === 'restriant-disengage') stopTimer()
                         if (DOOR_LIGHT_STEPS.includes(stepId)) {
                           const dir = stepId === 'lower-door' ? 'down' : 'up'
-                          startDoorLightAnimation(dir, () => setFlashKey(`${stepId}-${i + 1}`))
+                          startDoorLightAnimation(dir, () => {
+                            setFlashKey(`${stepId}-${i + 1}`)
+                            setDoorPosition(dir === 'up' ? 0 : DOOR_LIGHT_COUNT - 1)
+                          }, doorPosition)
                         }
                       })
                     }}
@@ -389,9 +425,33 @@ export function Controller() {
             <img src={door} alt="asynchronous door controls" className="button"/>
             {doorOpen && (
               <div className="door-controls" onClick={e => e.stopPropagation()}>
-                <img src={door_down} alt="door down button" className="button" />
+                <img
+                  src={door_down}
+                  alt="door down button"
+                  className="button"
+                  onPointerDown={(e) => {
+                    e.currentTarget.setPointerCapture(e.pointerId)
+                    if (doorPosition >= DOOR_LIGHT_COUNT - 1) return
+                    startManualDoorMove('down')
+                  }}
+                  onPointerUp={stopManualDoorMove}
+                  onPointerLeave={stopManualDoorMove}
+                  onPointerCancel={stopManualDoorMove}
+                />
                 <img src={door_stop} alt="door stop button" className="button" />
-                <img src={door_up} alt="door up button" className="button" />
+                <img
+                  src={door_up}
+                  alt="door up button"
+                  className="button"
+                  onPointerDown={(e) => {
+                    e.currentTarget.setPointerCapture(e.pointerId)
+                    if (doorPosition <= 0) return
+                    startManualDoorMove('up')
+                  }}
+                  onPointerUp={stopManualDoorMove}
+                  onPointerLeave={stopManualDoorMove}
+                  onPointerCancel={stopManualDoorMove}
+                />
               </div>
             )}
           </div>
