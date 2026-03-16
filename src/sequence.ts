@@ -10,11 +10,12 @@ import video4 from './assets/videos/end-load-positioning-4B1.mp4'
 import video5 from './assets/videos/end-unload-4B2.mp4'
 import video6 from './assets/videos/reg-loading-positioning-4B3.mp4'
 import video7 from './assets/videos/load-unload-5.mp4'
-import video8 from './assets/videos/store-leveler-endload-6B1.mp4'
+import video8 from './assets/videos/end-endload-home.mp4'
 import video9 from './assets/videos/endload-unload-6B2.mp4'
 import video10 from './assets/videos/store-leveler-complete.mp4'
 import video11 from './assets/videos/lower-door-7.mp4'
 import video12 from './assets/videos/restraint-disengage-8.mp4'
+import video13 from './assets/videos/lev-eng-to-endload.mp4'
 
 // Images
 import next from './assets/images/next.png'
@@ -167,26 +168,11 @@ export const STEPS: Step[] = [
   {
     id: 'store-leveler',
     label: 'End Load',
-    video: video8,
-    freezeAt: 1.1,
+    video: video13,
+    freezeAt: 1.2,
     buttons: [
       { image: prev,   action: { type: 'back' } },
       { image: leveler_down, action: {type: 'hold', duration: 1 } },
-      { image: next, action: { type: 'goto', stepId: 'endload-position-2' } },
-    ],
-    holdDown: true,
-  },
-
-  {
-    // user selected end load, this is step that puts leveler in end load position
-    // next step is end loading
-    id: 'endload-position-2',
-    label: 'End Load',
-    video: video4,
-    freezeAt: 1.1,
-    buttons: [
-      { image: prev,   action: { type: 'back' } },
-      { image: leveler_eng, action: {type: 'hold', duration: 1 } },
       { image: next, action: { type: 'goto', stepId: 'endload-load' } },
     ],
     holdDown: true,
@@ -199,8 +185,21 @@ export const STEPS: Step[] = [
     buttons: [
       { image: prev,   action: { type: 'back' } },
       // { image: loading, action: { type: 'flash-next' } },
-      { image: next, action: { type: 'goto', stepId: 'leveler-complete' }, flashOnMount: true },
+      { image: next, action: { type: 'goto', stepId: 'home-leveler-endload' }, flashOnMount: true },
     ],
+  },
+
+  {
+    id: 'home-leveler-endload',
+    label: 'Home Leveler',
+    video: video8,
+    freezeAt: 1.1,
+    buttons: [
+      { image: prev,   action: { type: 'back' } },
+      { image: leveler_down, action: {type: 'hold', duration: 1 } },
+      { image: next, action: { type: 'goto', stepId: 'lower-door' } },
+    ],
+    holdDown: true,
   },
 
   {
