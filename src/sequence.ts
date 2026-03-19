@@ -22,11 +22,11 @@ import next from './assets/images/next.png'
 import prev from './assets/images/previous.png'
 import rest_lock from './assets/images/restraint-locked.png'
 import rest_unlock from './assets/images/restraint-unlocked.png'
+import rest_unlock_done from './assets/images/restraint-unlocked-done.png'
 import door_up from './assets/images/door-up.png'
 import door_down from './assets/images/door-down.png'
 import leveler_eng from './assets/images/leveler-up.png'
 import leveler_down from './assets/images/leveler-down.png'
-// import loading from './assets/images/active-loading.png'
 
 // Choice step images
 import endLoadImg from './assets/images/end-load.png'
@@ -41,9 +41,11 @@ export type ButtonAction =
   | { type: 'hold'; duration?: number }  // hold for duration ms, then unlocks the next button in the array
   | { type: 'flash-next' }               // tap to manually flash the next button green
   | { type: 'goto-selected' }            // navigates to whichever choice side the user selected
+  | { type: 'finish' }                   // returns to screensaver and resets to home, preserving door label
 
 export interface StepButton {
   image: string
+  frozenImage?: string    // if set, replaces image when the video is frozen
   action: ButtonAction
   flashOnMount?: boolean  // if true, this button starts flashing when the step loads
 }
@@ -64,6 +66,7 @@ export interface VideoStep {
   buttons: StepButton[]  // 1–4 buttons in the footer center
   holdDown?: boolean       // if true, user must hold the button down for 2 seconds to trigger its action (default: false)
   freezeAt?: number        // seconds from the END of the video to pause and hold as a static frame
+  playbackRate?: number    // video playback speed multiplier (default: 1.0 = normal speed, e.g. 2.0 = 2x)
 }
 
 // A choice step — fills the main area with two tappable image halves
@@ -77,6 +80,9 @@ export interface ChoiceStep {
 }
 
 export type Step = VideoStep | ChoiceStep
+
+const PLAYBACK_RATE_fast = 1.3;
+const PLAYBACK_RATE_faster = 1.5;
 
 export const STEPS: Step[] = [
 
@@ -106,6 +112,7 @@ export const STEPS: Step[] = [
     id: 'door',
     label: 'Raise Door',
     video: video3,
+    playbackRate: PLAYBACK_RATE_fast,
     freezeAt: 1.1,
     buttons: [
       { image: prev,   action: { type: 'back' } },
@@ -121,6 +128,7 @@ export const STEPS: Step[] = [
     id: 'endload-position',
     label: 'End Load',
     video: video4,
+    playbackRate: PLAYBACK_RATE_faster,
     freezeAt: 1.1,
     buttons: [
       { image: prev,   action: { type: 'back' } },
@@ -145,6 +153,7 @@ export const STEPS: Step[] = [
     id: 'reg-load-position',
     label: 'Standard Load',
     video: video6,
+    playbackRate: PLAYBACK_RATE_faster,
     freezeAt: 1.1,
     buttons: [
       { image: prev,   action: { type: 'back' } },
@@ -169,6 +178,7 @@ export const STEPS: Step[] = [
     id: 'store-leveler',
     label: 'End Load',
     video: video13,
+    playbackRate: PLAYBACK_RATE_faster,
     freezeAt: 1.2,
     buttons: [
       { image: prev,   action: { type: 'back' } },
@@ -193,6 +203,7 @@ export const STEPS: Step[] = [
     id: 'home-leveler-endload',
     label: 'Home Leveler',
     video: video8,
+    playbackRate: PLAYBACK_RATE_faster,
     freezeAt: 1.1,
     buttons: [
       { image: prev,   action: { type: 'back' } },
@@ -206,6 +217,7 @@ export const STEPS: Step[] = [
     id: 'leveler-complete',
     label: 'Home Leveler',
     video: video10,
+    playbackRate: PLAYBACK_RATE_faster,
     freezeAt: 1.1,
     buttons: [
       { image: prev,   action: { type: 'back' } },
@@ -219,6 +231,7 @@ export const STEPS: Step[] = [
     id: 'lower-door',
     label: 'Lower Door',
     video: video11,
+    playbackRate: PLAYBACK_RATE_fast,
     freezeAt: 1.1,
     buttons: [
       { image: prev,   action: { type: 'back' } },
@@ -235,8 +248,8 @@ export const STEPS: Step[] = [
     freezeAt: 1.1,
     buttons: [
       { image: prev,   action: { type: 'back' } },
-      { image: rest_unlock, action: {type: 'hold', duration: 1 } },
-      { image: next, action: { type: 'goto', stepId: 'home' } },
+      { image: rest_unlock, frozenImage: rest_unlock_done, action: {type: 'hold', duration: 1 } },
+      { image: next, action: { type: 'finish' } },
     ],
     holdDown: true,
   },

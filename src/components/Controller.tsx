@@ -201,6 +201,12 @@ export function Controller() {
   }
 
   function handleAction(action: ButtonAction) {
+    if (action.type === 'finish') {
+      setStepId(STEPS[0].id)
+      setHistory([])
+      setShowScreensaver(true)
+      return
+    }
     if (action.type === 'goto') {
       setHistory((h) => [...h, stepId])
       setStepId(action.stepId)
@@ -253,6 +259,7 @@ export function Controller() {
               muted
               playsInline
               loop
+              onCanPlay={(e) => { (e.target as HTMLVideoElement).playbackRate = step.playbackRate ?? 1.0 }}
               onTimeUpdate={() => {
                 const vid = videoRef.current
                 if (!vid || !step.freezeAt || !freezeTriggered) return
@@ -394,7 +401,7 @@ export function Controller() {
                     onPointerLeave={cancelHold}
                     onPointerCancel={cancelHold}
                   >
-                    <img className="button" src={btn.image} alt="action button" />
+                    <img className="button" src={videoFrozen && btn.frozenImage ? btn.frozenImage : btn.image} alt="action button" />
                   </div>
                 )
               }

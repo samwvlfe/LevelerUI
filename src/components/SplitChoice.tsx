@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { ChoiceStep, ButtonAction } from '../sequence'
 import './SplitChoice.css'
-import checkedImg from '../assets/images/checked.png'
+import checkedImg from '../assets/images/greencheck.png'
 import uncheckedImg from '../assets/images/unchecked.png'
 
 interface SplitChoiceProps {
