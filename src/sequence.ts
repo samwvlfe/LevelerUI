@@ -3,8 +3,8 @@
 // ============================================================
 
 // Videos
-import video1 from './assets/videos/1_truck-back-in.mp4'
-import video2 from './assets/videos/2_restraint-engage.mp4'
+import video1 from './assets/videos/CONTROLS2 VIDEO-01.mp4'
+import video2 from './assets/videos/CONTROLS2 VIDEO-02.mp4'
 import video3 from './assets/videos/3_door-open.mp4'
 import video4 from './assets/videos/end-load-positioning-4B1.mp4'
 import video5 from './assets/videos/end-unload-4B2.mp4'
@@ -123,13 +123,12 @@ export const STEPS: Step[] = [
   },
 
   {
-    //get here from unload type decision
-    //next stepo should be to start unloading from end
+    //New video with cubed out trailer
     id: 'endload-position',
     label: 'End Load',
     video: video4,
     playbackRate: PLAYBACK_RATE_faster,
-    freezeAt: 1.1,
+    freezeAt: 1.2,
     buttons: [
       { image: prev,   action: { type: 'back' } },
       { image: leveler_eng, action: {type: 'hold', duration: 1 } },
@@ -138,7 +137,7 @@ export const STEPS: Step[] = [
     holdDown: true,
   },
 
-  {
+  { //AFTER THIS NEED REVERSED OF VIDEO8
     id: 'endload-unload',
     label: 'End Unloading',
     video: video5,
@@ -199,7 +198,7 @@ export const STEPS: Step[] = [
     ],
   },
 
-  {
+  { //new video reversed
     id: 'home-leveler-endload',
     label: 'Home Leveler',
     video: video8,
