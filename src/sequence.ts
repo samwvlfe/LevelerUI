@@ -3,19 +3,21 @@
 // ============================================================
 
 // Videos
-import video1 from './assets/videos/CONTROLS2 VIDEO-01.mp4'
-import video2 from './assets/videos/CONTROLS2 VIDEO-02.mp4'
-import video3 from './assets/videos/3_door-open.mp4'
-import video4 from './assets/videos/end-load-positioning-4B1.mp4'
-import video5 from './assets/videos/end-unload-4B2.mp4'
-import video6 from './assets/videos/reg-loading-positioning-4B3.mp4'
-import video7 from './assets/videos/load-unload-5.mp4'
-import video8 from './assets/videos/end-endload-home.mp4'
-import video9 from './assets/videos/endload-unload-6B2.mp4'
-import video10 from './assets/videos/store-leveler-complete.mp4'
-import video11 from './assets/videos/lower-door-7.mp4'
-import video12 from './assets/videos/restraint-disengage-8.mp4'
-import video13 from './assets/videos/lev-eng-to-endload.mp4'
+import video1 from './assets/videos/1-truck-backing-in.mp4'
+import video2 from './assets/videos/2-lock-restraint.mp4'
+import video3 from './assets/videos/3-door-open.mp4'
+import video4 from './assets/videos/4-to-end-unload-position.mp4'
+import video5 from './assets/videos/5-end-unload.mp4'
+import video6 from './assets/videos/6-from-endload-to-standard-position.mp4'
+import video6_2 from './assets/videos/6_2-reg-loading-position.mp4'
+import video7 from './assets/videos/7-load-unload.mp4'
+import video8 from './assets/videos/8-to-endload-from-standard.mp4'
+import video9 from './assets/videos/9-endload-unload.mp4'
+import video10 from './assets/videos/10-from-endload-to-stored.mp4'
+import video10_2 from './assets/videos/10_2-from-standard-to-stored.mp4'
+import video11 from './assets/videos/11-close-door-cubed-out.mp4'
+import video11_2 from './assets/videos/11_2-lower-door.mp4'
+import video12 from './assets/videos/restraint-disengage-8.mp4' //NEED NEW
 
 // Images
 import next from './assets/images/next.png'
@@ -86,7 +88,7 @@ const PLAYBACK_RATE_faster = 1.5;
 
 export const STEPS: Step[] = [
 
-  { //starts here
+  { // truck backing up
     id: 'home',
     label: 'Home',
     video: video1,
@@ -95,7 +97,7 @@ export const STEPS: Step[] = [
     ],
   },
 
-  {
+  { // restraint locking
     id: 'restraint',
     label: 'Raise Restraint',
     video: video2,
@@ -108,7 +110,7 @@ export const STEPS: Step[] = [
     holdDown: true,
   },
 
-  {
+  { // door raising
     id: 'door',
     label: 'Raise Door',
     video: video3,
@@ -123,12 +125,12 @@ export const STEPS: Step[] = [
   },
 
   {
-    //New video with cubed out trailer
+    // from end UNLOAD selection - leveler going to end unload position - cubed out
     id: 'endload-position',
     label: 'End Load',
     video: video4,
     playbackRate: PLAYBACK_RATE_faster,
-    freezeAt: 1.2,
+    freezeAt: 1.3,
     buttons: [
       { image: prev,   action: { type: 'back' } },
       { image: leveler_eng, action: {type: 'hold', duration: 1 } },
@@ -137,19 +139,18 @@ export const STEPS: Step[] = [
     holdDown: true,
   },
 
-  { //AFTER THIS NEED REVERSED OF VIDEO8
+  { // forklift taking off end loaded pallet
     id: 'endload-unload',
     label: 'End Unloading',
     video: video5,
     buttons: [
       { image: prev,   action: { type: 'back' } },
-      // { image: loading, action: { type: 'flash-next' } },
-      { image: next, action: { type: 'goto', stepId: 'reg-load-position' }, flashOnMount: true },
+      { image: next, action: { type: 'goto', stepId: 'reg-load-position2' }, flashOnMount: true },
     ],
   },
 
-  {
-    id: 'reg-load-position',
+  { // leveler going from end load position to regular load position
+    id: 'reg-load-position2',
     label: 'Standard Load',
     video: video6,
     playbackRate: PLAYBACK_RATE_faster,
@@ -162,21 +163,34 @@ export const STEPS: Step[] = [
     holdDown: true,
   },
 
-  {
+  { // leveler going to standard load position from stored
+    id: 'reg-load-position1',
+    label: 'Standard Load',
+    video: video6_2,
+    playbackRate: PLAYBACK_RATE_faster,
+    freezeAt: 1.1,
+    buttons: [
+      { image: prev,   action: { type: 'back' } },
+      { image: leveler_eng, action: {type: 'hold', duration: 1 } },
+      { image: next, action: { type: 'goto', stepId: 'load-unload' } },
+    ],
+    holdDown: true,
+  },
+
+  { // forkilift going in and out of trailer loading it
     id: 'load-unload',
     label: 'Standard Loading',
     video: video7,
     buttons: [
       { image: prev,   action: { type: 'back' } },
-      // { image: loading, action: { type: 'flash-next' } },
       { image: next, action: { type: 'goto', stepId: 'which-load' }, flashOnMount: true },
     ],
   },
 
-  {
+  { // from end LOAD selection - leveler going from regular load position to end load position
     id: 'store-leveler',
     label: 'End Load',
-    video: video13,
+    video: video8,
     playbackRate: PLAYBACK_RATE_faster,
     freezeAt: 1.2,
     buttons: [
@@ -187,33 +201,18 @@ export const STEPS: Step[] = [
     holdDown: true,
   },
 
-  {
+  { // forklift adding end loaded pallet into back of trailer
     id: 'endload-load',
     label: 'End Loading',
     video: video9,
     buttons: [
       { image: prev,   action: { type: 'back' } },
-      // { image: loading, action: { type: 'flash-next' } },
       { image: next, action: { type: 'goto', stepId: 'home-leveler-endload' }, flashOnMount: true },
     ],
   },
 
-  { //new video reversed
+  { // leveler in end load position to stored position - cubed out
     id: 'home-leveler-endload',
-    label: 'Home Leveler',
-    video: video8,
-    playbackRate: PLAYBACK_RATE_faster,
-    freezeAt: 1.1,
-    buttons: [
-      { image: prev,   action: { type: 'back' } },
-      { image: leveler_down, action: {type: 'hold', duration: 1 } },
-      { image: next, action: { type: 'goto', stepId: 'lower-door' } },
-    ],
-    holdDown: true,
-  },
-
-  {
-    id: 'leveler-complete',
     label: 'Home Leveler',
     video: video10,
     playbackRate: PLAYBACK_RATE_faster,
@@ -221,13 +220,13 @@ export const STEPS: Step[] = [
     buttons: [
       { image: prev,   action: { type: 'back' } },
       { image: leveler_down, action: {type: 'hold', duration: 1 } },
-      { image: next, action: { type: 'goto', stepId: 'lower-door' } },
+      { image: next, action: { type: 'goto', stepId: 'lower-door-endload' } },
     ],
     holdDown: true,
   },
 
-  {
-    id: 'lower-door',
+  { // lower door - cubed out
+    id: 'lower-door-endload',
     label: 'Lower Door',
     video: video11,
     playbackRate: PLAYBACK_RATE_fast,
@@ -240,7 +239,35 @@ export const STEPS: Step[] = [
     holdDown: true,
   },
 
-  {
+  { // leveler from regular load postotion to stored position - non cubed out
+    id: 'leveler-complete',
+    label: 'Home Leveler',
+    video: video10_2,
+    playbackRate: PLAYBACK_RATE_faster,
+    freezeAt: 1.1,
+    buttons: [
+      { image: prev,   action: { type: 'back' } },
+      { image: leveler_down, action: {type: 'hold', duration: 1 } },
+      { image: next, action: { type: 'goto', stepId: 'lower-door' } },
+    ],
+    holdDown: true,
+  },
+
+  { // lower door - non cubed out
+    id: 'lower-door',
+    label: 'Lower Door',
+    video: video11_2,
+    playbackRate: PLAYBACK_RATE_fast,
+    freezeAt: 1.1,
+    buttons: [
+      { image: prev,   action: { type: 'back' } },
+      { image: door_down, action: {type: 'hold', duration: 1 } },
+      { image: next, action: { type: 'goto', stepId: 'restriant-disengage' } },
+    ],
+    holdDown: true,
+  },
+
+  { //NEED NEW VIDEO
     id: 'restriant-disengage',
     label: 'Lower Restraint',
     video: video12,
@@ -255,7 +282,7 @@ export const STEPS: Step[] = [
 
   // Choice steps
 
-  {
+  { // choice 1 - which unload method
     type: 'choice',
     id: 'which-unload',
     label: 'Unload Selection',
@@ -267,7 +294,7 @@ export const STEPS: Step[] = [
     right: {
       image: regularLoadImg,
       label: 'Standard Load',
-      action: { type: 'goto', stepId: 'reg-load-position' },
+      action: { type: 'goto', stepId: 'reg-load-position1' },
     },
     buttons: [
       { image: prev, action: { type: 'back' } },
@@ -275,7 +302,7 @@ export const STEPS: Step[] = [
     ],
   },
 
-  {
+  { // choice 2 - which load method
     type: 'choice',
     id: 'which-load',
     label: 'Load Selection',
