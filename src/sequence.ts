@@ -17,7 +17,7 @@ import video10 from './assets/videos/10-from-endload-to-stored.mp4'
 import video10_2 from './assets/videos/10_2-from-standard-to-stored.mp4'
 import video11 from './assets/videos/11-close-door-cubed-out.mp4'
 import video11_2 from './assets/videos/11_2-lower-door.mp4'
-import video12 from './assets/videos/restraint-disengage-8.mp4' //NEED NEW
+import video12 from './assets/videos/12-restraint-disengage.mp4' //NEED NEW
 
 // Images
 import next from './assets/images/next.png'
