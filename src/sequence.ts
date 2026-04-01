@@ -17,7 +17,7 @@ import video10 from './assets/videos/10-from-endload-to-stored.mp4'
 import video10_2 from './assets/videos/10_2-from-standard-to-stored.mp4'
 import video11 from './assets/videos/11-close-door-cubed-out.mp4'
 import video11_2 from './assets/videos/11_2-lower-door.mp4'
-import video12 from './assets/videos/12-restraint-disengage.mp4' //NEED NEW
+import video12 from './assets/videos/12-restraint-disengage2.mp4'
 
 // Images
 import next from './assets/images/next.png'
@@ -271,7 +271,7 @@ export const STEPS: Step[] = [
     id: 'restriant-disengage',
     label: 'Lower Restraint',
     video: video12,
-    freezeAt: 1.1,
+    freezeAt: 1.05,
     buttons: [
       { image: prev,   action: { type: 'back' } },
       { image: rest_unlock, frozenImage: rest_unlock_done, action: {type: 'hold', duration: 1 } },
