@@ -12,7 +12,7 @@ import { SplitChoice } from './SplitChoice'
 import { Screensaver } from './Screensaver'
 import { useIdleTimer } from '../hooks/useIdleTimer'
 
-const IDLE_TIMEOUT_MS = 240_000
+const IDLE_TIMEOUT_MS = 3600000 // 1 hour
 const DOOR_LIGHT_COUNT = 4
 const DOOR_LIGHT_DURATION_MS = 2500   // ← change this to adjust animation speed
 const DOOR_LIGHT_STEPS = ['door', 'lower-door']
